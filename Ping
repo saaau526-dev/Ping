@@ -45,21 +45,22 @@ PingLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
 PingLabel.Font = Enum.Font.GothamBold
 PingLabel.TextSize = 12
 
--- Roblox公式と同じ正確な往復Ping（GetNetworkPing）を取得して更新
+-- 値を半分（片道）にして更新
 task.spawn(function()
 	while true do
 		local success, pingVal = pcall(function()
-			-- :GetNetworkPing() は秒単位の片道のため、* 2000 をすることで公式の往復ミリ秒（ms）に一致させます
-			return math.floor((Player:GetNetworkPing() * 2000) + 0.5)
+			-- :GetNetworkPing() は秒単位の片道のため、* 1000 をすることで片道ミリ秒（ms）になります
+			-- （※ 元の往復値 2000 を半分にしています）
+			return math.floor((Player:GetNetworkPing() * 1000) + 0.5)
 		end)
 		
 		if success and pingVal then
 			PingLabel.Text = "Ping: " .. pingVal .. " ms"
 			
-			-- ネットワーク状態に応じた色の変更
-			if pingVal < 100 then
+			-- ネットワーク状態に応じた色の変更（基準値も半分に合わせて調整するとより正確になります）
+			if pingVal < 50 then
 				PingLabel.TextColor3 = Color3.fromRGB(100, 255, 120) -- 緑 (良好)
-			elseif pingVal < 250 then
+			elseif pingVal < 125 then
 				PingLabel.TextColor3 = Color3.fromRGB(255, 200, 100) -- 黄 (注意)
 			else
 				PingLabel.TextColor3 = Color3.fromRGB(255, 100, 100) -- 赤 (重い)
